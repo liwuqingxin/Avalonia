@@ -23,11 +23,13 @@ internal class UntypedBindingExpression : IObservable<object?>,
     IDisposable
 {
     private const string NullValueMessage = "Value is null.";
+    private static readonly WeakReference<object?> NullReference = new(null);
     private readonly WeakReference<object?>? _source;
     private readonly IReadOnlyList<ExpressionNode> _nodes;
     private readonly TargetTypeConverter? _targetTypeConverter;
     private readonly bool _enableDataValidation;
     private IObserver<object?>? _observer;
+    private WeakReference<object?>? _value;
     private UncommonFields? _uncommon;
 
     /// <summary>
@@ -135,6 +137,16 @@ internal class UntypedBindingExpression : IObservable<object?>,
         if (value == BindingOperations.DoNothing)
             return true;
 
+        // If the value is the same as the last value, then don't set the value.
+        if (_value is not null && _value.TryGetTarget(out var lastValue) && Equals(value, lastValue))
+            return true;
+
+        // If the value is null and the last value was null, then don't set the value. This is a
+        // separate step from the above because WeakReference<T>.TryGetTarget() returns false for
+        // null references.
+        if (value is null && _value == NullReference)
+            return true;
+
         try
         {
             return LeafNode.WriteValueToSource(BindingNotification.ExtractValue(value), _nodes);
@@ -234,6 +246,8 @@ internal class UntypedBindingExpression : IObservable<object?>,
     /// <param name="error">The error message.</param>
     internal void OnNodeError(int nodeIndex, string error)
     {
+        _value = null;
+
         // Set the source of all nodes after the one that errored to null. This needs to be done
         // for each node individually because setting the source to null will not result in
         // OnNodeValueChanged or OnNodeError being called.
@@ -342,7 +356,8 @@ internal class UntypedBindingExpression : IObservable<object?>,
                 value = UpdateAndUnwrap(_targetTypeConverter.ConvertFrom(value), ref notification);
         }
 
-        // Publish the notification/value to the observer.
+        // Store the value and publish the notification/value to the observer.
+        _value = value is null ? NullReference : new(value);
         _observer.OnNext(notification ?? value);
     }
 
