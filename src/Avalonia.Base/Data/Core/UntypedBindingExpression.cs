@@ -342,7 +342,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
             else if (_targetTypeConverter is not null && value is not null)
             {
                 // Otherwise, if we have a target type converter, convert the value to the target type.
-                value = UpdateAndUnwrap(ConvertFrom(_targetTypeConverter, value), ref notification);
+                value = UpdateAndUnwrap(ConvertFrom(_targetTypeConverter, value, false), ref notification);
             }
         }
 
@@ -354,7 +354,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
 
             // If we have a target type converter, convert the fallback value to the target type.
             if (_targetTypeConverter is not null && value is not null)
-                value = UpdateAndUnwrap(ConvertFrom(_targetTypeConverter, value), ref notification);
+                value = UpdateAndUnwrap(ConvertFrom(_targetTypeConverter, value, true), ref notification);
         }
 
         // Store the value and publish the notification/value to the observer.
@@ -388,11 +388,15 @@ internal class UntypedBindingExpression : IObservable<object?>,
         }
         catch (Exception e)
         {
-            return new BindingNotification(e, BindingErrorType.Error);
+            var valueString = value?.ToString() ?? "(null)";
+            var valueTypeName = value?.GetType().FullName ?? "null";
+            var ex = new InvalidCastException(
+                $"Cannot convert '{valueString}' ({valueTypeName}) to '{targetType}' using '{converter}'.", e);
+            return new BindingNotification(ex, BindingErrorType.Error);
         }
     }
 
-    private static object? ConvertFrom(TypeConverter? converter, object value)
+    private static object? ConvertFrom(TargetTypeConverter? converter, object value, bool isFallback)
     {
         if (converter is null)
             return value;
@@ -403,7 +407,12 @@ internal class UntypedBindingExpression : IObservable<object?>,
         }
         catch (Exception e)
         {
-            return new BindingNotification(e, BindingErrorType.Error);
+            var valueString = value?.ToString() ?? "(null)";
+            var valueTypeName = value?.GetType().FullName ?? "null";
+            var fallbackMessage = isFallback ? " fallback value " : " ";
+            var ex = new InvalidCastException(
+                $"Cannot convert{fallbackMessage}'{valueString}' ({valueTypeName}) to '{converter.TargetType}'.", e);
+            return new BindingNotification(ex, BindingErrorType.Error);
         }
     }
 
@@ -421,11 +430,8 @@ internal class UntypedBindingExpression : IObservable<object?>,
                     notification.AddError(n.Error, n.ErrorType);
             }
         }
-        else
-        {
-            notification?.SetValue(value);
-        }
 
+        notification?.SetValue(value);
         return value;
     }
 

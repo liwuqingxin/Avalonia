@@ -90,108 +90,106 @@ namespace Avalonia.Base.UnitTests.Data.Core
             GC.KeepAlive(data);
         }
 
-        ////[Fact]
-        ////public async Task Should_Return_BindingNotification_With_FallbackValue_For_NonConvertibe_Target_Value()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.StringValue),
-        ////        typeof(int),
-        ////        42,
-        ////        AvaloniaProperty.UnsetValue,
-        ////        DefaultValueConverter.Instance);
-        ////    var result = await target.Take(1);
+        [Fact]
+        public async Task Should_Return_BindingNotification_With_FallbackValue_For_NonConvertibe_Target_Value()
+        {
+            var data = new Class1 { StringValue = "foo" };
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.StringValue,
+                fallbackValue: 42,
+                targetType: typeof(int));
+            var result = await target.Take(1);
 
-        ////    Assert.Equal(
-        ////        new BindingNotification(
-        ////            new InvalidCastException("'foo' is not a valid number."),
-        ////            BindingErrorType.Error,
-        ////            42),
-        ////        result);
+            Assert.Equal(
+                new BindingNotification(
+                    new InvalidCastException("Cannot convert 'foo' (System.String) to 'System.Int32'."),
+                    BindingErrorType.Error,
+                    42),
+                result);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
-        ////[Fact]
-        ////public async Task Should_Return_BindingNotification_With_FallbackValue_For_NonConvertibe_Target_Value_With_Data_Validation()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.StringValue, true),
-        ////        typeof(int),
-        ////        42,
-        ////        AvaloniaProperty.UnsetValue,
-        ////        DefaultValueConverter.Instance);
-        ////    var result = await target.Take(1);
+        [Fact]
+        public async Task Should_Return_BindingNotification_With_FallbackValue_For_NonConvertibe_Target_Value_With_Data_Validation()
+        {
+            var data = new Class1 { StringValue = "foo" };
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.StringValue,
+                enableDataValidation: true,
+                fallbackValue: 42,
+                targetType: typeof(int));
+            var result = await target.Take(1);
 
-        ////    Assert.Equal(
-        ////        new BindingNotification(
-        ////            new InvalidCastException("'foo' is not a valid number."),
-        ////            BindingErrorType.Error,
-        ////            42),
-        ////        result);
+            Assert.Equal(
+                new BindingNotification(
+                    new InvalidCastException("Cannot convert 'foo' (System.String) to 'System.Int32'."),
+                    BindingErrorType.Error,
+                    42),
+                result);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
-        ////[Fact]
-        ////public async Task Should_Return_BindingNotification_For_Invalid_FallbackValue()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.StringValue),
-        ////        typeof(int),
-        ////        "bar",
-        ////        AvaloniaProperty.UnsetValue,
-        ////        DefaultValueConverter.Instance);
-        ////    var result = await target.Take(1);
+        [Fact]
+        public async Task Should_Return_BindingNotification_For_Invalid_FallbackValue()
+        {
+            var data = new Class1 { StringValue = "foo" };
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.StringValue,
+                fallbackValue: "bar",
+                targetType: typeof(int));
+            var result = await target.Take(1);
 
-        ////    Assert.Equal(
-        ////        new BindingNotification(
-        ////            new AggregateException(
-        ////                new InvalidCastException("'foo' is not a valid number."),
-        ////                new InvalidCastException("Could not convert FallbackValue 'bar' to 'System.Int32'")),
-        ////            BindingErrorType.Error),
-        ////        result);
+            Assert.Equal(
+                new BindingNotification(
+                    new AggregateException(
+                        new InvalidCastException("Cannot convert 'foo' (System.String) to 'System.Int32'."),
+                        new InvalidCastException("Cannot convert fallback value 'bar' (System.String) to 'System.Int32'.")),
+                    BindingErrorType.Error),
+                result);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
-        ////[Fact]
-        ////public async Task Should_Return_BindingNotification_For_Invalid_FallbackValue_With_Data_Validation()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.StringValue, true),
-        ////        typeof(int),
-        ////        "bar",
-        ////        AvaloniaProperty.UnsetValue,
-        ////        DefaultValueConverter.Instance);
-        ////    var result = await target.Take(1);
+        [Fact]
+        public async Task Should_Return_BindingNotification_For_Invalid_FallbackValue_With_Data_Validation()
+        {
+            var data = new Class1 { StringValue = "foo" };
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.StringValue,
+                enableDataValidation: true,
+                fallbackValue: "bar",
+                targetType: typeof(int));
+            var result = await target.Take(1);
 
-        ////    Assert.Equal(
-        ////        new BindingNotification(
-        ////            new AggregateException(
-        ////                new InvalidCastException("'foo' is not a valid number."),
-        ////                new InvalidCastException("Could not convert FallbackValue 'bar' to 'System.Int32'")),
-        ////            BindingErrorType.Error),
-        ////        result);
+            Assert.Equal(
+                new BindingNotification(
+                    new AggregateException(
+                        new InvalidCastException("Cannot convert 'foo' (System.String) to 'System.Int32'."),
+                        new InvalidCastException("Cannot convert fallback value 'bar' (System.String) to 'System.Int32'.")),
+                    BindingErrorType.Error),
+                result);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
-        ////[Fact]
-        ////public void Setting_Invalid_Double_String_Should_Not_Change_Target()
-        ////{
-        ////    var data = new Class1 { DoubleValue = 5.6 };
-        ////    var target = new BindingExpression(UntypedBindingExpression.Create(data, o => o.DoubleValue), typeof(string));
+        [Fact]
+        public void Setting_Invalid_Double_String_Should_Not_Change_Target()
+        {
+            var data = new Class1 { DoubleValue = 5.6 };
+            var target = UntypedBindingExpression.Create(data, o => o.DoubleValue, targetType: typeof(string));
 
-        ////    target.OnNext("foo");
+            target.SetValue("foo");
 
-        ////    Assert.Equal(5.6, data.DoubleValue);
+            Assert.Equal(5.6, data.DoubleValue);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
         ////[Fact]
         ////public void Setting_Invalid_Double_String_Should_Use_FallbackValue()
