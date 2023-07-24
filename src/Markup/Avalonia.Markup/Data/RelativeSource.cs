@@ -28,7 +28,6 @@ namespace Avalonia.Data
         FindAncestor,
     }
 
-
     /// <summary>
     /// The type of tree via which to track a control.
     /// </summary>

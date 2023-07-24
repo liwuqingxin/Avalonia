@@ -37,19 +37,20 @@ namespace Avalonia.Markup.Xaml.Templates
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "If ItemsSource is a CompiledBinding, then path members will be preserver")]
         public InstancedBinding? ItemsSelector(object item)
         {
-            if (ItemsSource != null)
-            {
-                var obs = ItemsSource switch
-                {
-                    Binding reflection => ExpressionObserverBuilder.Build(item, reflection.Path),
-                    CompiledBindingExtension compiled => new ExpressionObserver(item, compiled.Path.BuildExpression(false)),
-                    _ => throw new InvalidOperationException("TreeDataTemplate currently only supports Binding and CompiledBindingExtension!")
-                };
+            throw new NotImplementedException();
+            ////if (ItemsSource != null)
+            ////{
+            ////    var obs = ItemsSource switch
+            ////    {
+            ////        Binding reflection => ExpressionObserverBuilder.Build(item, reflection.Path),
+            ////        CompiledBindingExtension compiled => new ExpressionObserver(item, compiled.Path.BuildExpression(false)),
+            ////        _ => throw new InvalidOperationException("TreeDataTemplate currently only supports Binding and CompiledBindingExtension!")
+            ////    };
 
-                return InstancedBinding.OneWay(obs, BindingPriority.Style);
-            }
+            ////    return InstancedBinding.OneWay(obs, BindingPriority.Style);
+            ////}
 
-            return null;
+            ////return null;
         }
 
         public Control? Build(object? data)

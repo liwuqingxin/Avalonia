@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Avalonia.Data;
 using Avalonia.Data.Core.Plugins;
+using Avalonia.Data.Core.Plugins.Reflection;
 using Avalonia.UnitTests;
 using Xunit;
 

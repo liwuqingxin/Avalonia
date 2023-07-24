@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Avalonia.Data
 {
@@ -55,6 +56,7 @@ namespace Avalonia.Data
         /// <param name="value">The binding value.</param>
         public BindingNotification(object? value)
         {
+            Debug.Assert(value is not BindingNotification);
             _value = value;
         }
 

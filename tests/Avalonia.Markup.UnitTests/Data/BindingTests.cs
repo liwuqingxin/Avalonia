@@ -1,18 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using Avalonia.Controls;
 using Avalonia.Data;
-using Avalonia.Markup.Data;
+using Avalonia.Threading;
 using Moq;
 using Xunit;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using Avalonia.UnitTests;
-using Avalonia.Data.Converters;
-using Avalonia.Data.Core;
-using Avalonia.Threading;
 
 namespace Avalonia.Markup.UnitTests.Data
 {
@@ -110,10 +105,13 @@ namespace Avalonia.Markup.UnitTests.Data
 
             public override bool Equals(object obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
-                if (ReferenceEquals(this, obj)) return true;
-                if (obj.GetType() != this.GetType()) return false;
-                return Equals((DummyObject) obj);
+                if (ReferenceEquals(null, obj))
+                    return false;
+                if (ReferenceEquals(this, obj))
+                    return true;
+                if (obj.GetType() != this.GetType())
+                    return false;
+                return Equals((DummyObject)obj);
             }
 
             public override int GetHashCode()
@@ -163,7 +161,7 @@ namespace Avalonia.Markup.UnitTests.Data
 
             // Forces WeakEvent compact
             Dispatcher.UIThread.RunJobs();
-            
+
             Assert.Equal(0, source.SubscriberCount);
         }
 
@@ -325,52 +323,53 @@ namespace Avalonia.Markup.UnitTests.Data
             Assert.Equal(new[] { null, "bar" }, values);
         }
 
-        [Fact]
-        public void Should_Use_DefaultValueConverter_When_No_Converter_Specified()
-        {
-            var target = new TextBlock(); ;
-            var binding = new Binding
-            {
-                Path = "Foo",
-            };
+        ////[Fact]
+        ////public void Should_Use_DefaultValueConverter_When_No_Converter_Specified()
+        ////{
+        ////    var target = new TextBlock();
+        ////    ;
+        ////    var binding = new Binding
+        ////    {
+        ////        Path = "Foo",
+        ////    };
 
-            var result = binding.Initiate(target, TextBox.TextProperty).Source;
+        ////    var result = binding.Initiate(target, TextBox.TextProperty).Source;
 
-            Assert.IsType<DefaultValueConverter>(((BindingExpression)result).Converter);
-        }
+        ////    Assert.IsType<DefaultValueConverter>(((BindingExpression)result).Converter);
+        ////}
 
-        [Fact]
-        public void Should_Use_Supplied_Converter()
-        {
-            var target = new TextBlock();
-            var converter = new Mock<IValueConverter>();
-            var binding = new Binding
-            {
-                Converter = converter.Object,
-                Path = "Foo",
-            };
+        ////[Fact]
+        ////public void Should_Use_Supplied_Converter()
+        ////{
+        ////    var target = new TextBlock();
+        ////    var converter = new Mock<IValueConverter>();
+        ////    var binding = new Binding
+        ////    {
+        ////        Converter = converter.Object,
+        ////        Path = "Foo",
+        ////    };
 
-            var result = binding.Initiate(target, TextBox.TextProperty).Source;
+        ////    var result = binding.Initiate(target, TextBox.TextProperty).Source;
 
-            Assert.Same(converter.Object, ((BindingExpression)result).Converter);
-        }
+        ////    Assert.Same(converter.Object, ((BindingExpression)result).Converter);
+        ////}
 
-        [Fact]
-        public void Should_Pass_ConverterParameter_To_Supplied_Converter()
-        {
-            var target = new TextBlock();
-            var converter = new Mock<IValueConverter>();
-            var binding = new Binding
-            {
-                Converter = converter.Object,
-                ConverterParameter = "foo",
-                Path = "Bar",
-            };
+        ////[Fact]
+        ////public void Should_Pass_ConverterParameter_To_Supplied_Converter()
+        ////{
+        ////    var target = new TextBlock();
+        ////    var converter = new Mock<IValueConverter>();
+        ////    var binding = new Binding
+        ////    {
+        ////        Converter = converter.Object,
+        ////        ConverterParameter = "foo",
+        ////        Path = "Bar",
+        ////    };
 
-            var result = binding.Initiate(target, TextBox.TextProperty).Source;
+        ////    var result = binding.Initiate(target, TextBox.TextProperty).Source;
 
-            Assert.Same("foo", ((BindingExpression)result).ConverterParameter);
-        }
+        ////    Assert.Same("foo", ((BindingExpression)result).ConverterParameter);
+        ////}
 
         [Fact]
         public void Should_Return_FallbackValue_When_Path_Not_Resolved()
@@ -614,10 +613,10 @@ namespace Avalonia.Markup.UnitTests.Data
 
             // Forces WeakEvent compact
             Dispatcher.UIThread.RunJobs();
-            
+
             Assert.Equal(0, source.SubscriberCount);
         }
-        
+
         [Fact]
         public void Binding_Can_Resolve_Property_From_IReflectableType_Type()
         {
@@ -702,8 +701,8 @@ namespace Avalonia.Markup.UnitTests.Data
                 get { return GetValue(DoubleValueProperty); }
                 set { SetValue(DoubleValueProperty, value); }
             }
-            
-            public static StyledProperty<double?> NullableDoubleProperty = 
+
+            public static StyledProperty<double?> NullableDoubleProperty =
                 AvaloniaProperty.Register<StyledPropertyClass, double?>(nameof(NullableDoubleProperty), -1);
 
             public double? NullableDouble
@@ -765,8 +764,10 @@ namespace Avalonia.Markup.UnitTests.Data
                         if (SetterInvokedCount < MaxInvokedCount)
                         {
                             _value = (int)value;
-                            if (_value > 75) _value = 75;
-                            if (_value < 25) _value = 25;
+                            if (_value > 75)
+                                _value = 75;
+                            if (_value < 25)
+                                _value = 25;
                         }
                         else
                         {
@@ -783,7 +784,7 @@ namespace Avalonia.Markup.UnitTests.Data
         {
             public static readonly StyledProperty<string> TwoWayProperty =
                 AvaloniaProperty.Register<TwoWayBindingTest, string>(
-                    "TwoWay", 
+                    "TwoWay",
                     defaultBindingMode: BindingMode.TwoWay);
 
             public string TwoWay

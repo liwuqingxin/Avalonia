@@ -2,10 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
-using Avalonia.Data.Core;
-using Avalonia.LogicalTree;
 using Avalonia.Reactive;
-using Avalonia.VisualTree;
 
 namespace Avalonia.Data
 {
@@ -69,170 +66,121 @@ namespace Avalonia.Data
 
         public WeakReference<INameScope?>? NameScope { get; set; }
 
-        private protected abstract ExpressionObserver CreateExpressionObserver(
-            AvaloniaObject target,
-            AvaloniaProperty? targetProperty,
-            object? anchor,
-            bool enableDataValidation);
-
         /// <inheritdoc/>
         [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = TrimmingMessages.TypeConversionSupressWarningMessage)]
-        public InstancedBinding? Initiate(
+        public abstract InstancedBinding? Initiate(
             AvaloniaObject target,
             AvaloniaProperty? targetProperty,
             object? anchor = null,
-            bool enableDataValidation = false)
-        {
-            _ = target ?? throw new ArgumentNullException(nameof(target));
+            bool enableDataValidation = false);
 
-            anchor = anchor ?? DefaultAnchor?.Target;
+        ////private protected ExpressionObserver CreateDataContextObserver(
+        ////    AvaloniaObject target,
+        ////    ExpressionNode node,
+        ////    bool targetIsDataContext,
+        ////    object? anchor)
+        ////{
+        ////    _ = target ?? throw new ArgumentNullException(nameof(target));
 
-            enableDataValidation = enableDataValidation && Priority == BindingPriority.LocalValue;
+        ////    if (target is not IDataContextProvider)
+        ////    {
+        ////        if (anchor is IDataContextProvider && anchor is AvaloniaObject ao)
+        ////            target = ao;
+        ////        else
+        ////            throw new InvalidOperationException("Cannot find a DataContext to bind to.");
+        ////    }
 
-            var observer = CreateExpressionObserver(target, targetProperty, anchor, enableDataValidation);
+        ////    if (!targetIsDataContext)
+        ////    {
+        ////        var result = new ExpressionObserver(
+        ////            () => target.GetValue(StyledElement.DataContextProperty),
+        ////            node,
+        ////            new UpdateSignal(target, StyledElement.DataContextProperty),
+        ////            null);
 
-            var fallback = FallbackValue;
+        ////        return result;
+        ////    }
+        ////    else
+        ////    {
+        ////        return new ExpressionObserver(
+        ////            GetParentDataContext(target),
+        ////            node,
+        ////            null);
+        ////    }
+        ////}
 
-            // If we're binding to DataContext and our fallback is UnsetValue then override
-            // the fallback value to null, as broken bindings to DataContext must reset the
-            // DataContext in order to not propagate incorrect DataContexts to child controls.
-            // See Avalonia.Markup.UnitTests.Data.DataContext_Binding_Should_Produce_Correct_Results.
-            if (targetProperty == StyledElement.DataContextProperty && fallback == AvaloniaProperty.UnsetValue)
-            {
-                fallback = null;
-            }
+        ////private protected ExpressionObserver CreateElementObserver(
+        ////    StyledElement target,
+        ////    string elementName,
+        ////    ExpressionNode node)
+        ////{
+        ////    _ = target ?? throw new ArgumentNullException(nameof(target));
 
-            var converter = Converter;
-            var targetType = targetProperty?.PropertyType ?? typeof(object);
+        ////    if (NameScope is null || !NameScope.TryGetTarget(out var scope))
+        ////        throw new InvalidOperationException("Name scope is null or was already collected");
+        ////    var result = new ExpressionObserver(
+        ////        NameScopeLocator.Track(scope, elementName),
+        ////        node,
+        ////        null);
+        ////    return result;
+        ////}
 
-            // We only respect `StringFormat` if the type of the property we're assigning to will
-            // accept a string. Note that this is slightly different to WPF in that WPF only applies
-            // `StringFormat` for target type `string` (not `object`).
-            if (!string.IsNullOrWhiteSpace(StringFormat) &&
-                (targetType == typeof(string) || targetType == typeof(object)))
-            {
-                converter = new StringFormatValueConverter(StringFormat!, converter);
-            }
+        ////private protected ExpressionObserver CreateFindAncestorObserver(
+        ////    StyledElement target,
+        ////    RelativeSource relativeSource,
+        ////    ExpressionNode node)
+        ////{
+        ////    _ = target ?? throw new ArgumentNullException(nameof(target));
 
-            var subject = new BindingExpression(
-                observer,
-                targetType,
-                fallback,
-                TargetNullValue,
-                converter ?? DefaultValueConverter.Instance,
-                ConverterParameter,
-                Priority);
+        ////    IObservable<object?> controlLocator;
 
-            return new InstancedBinding(subject, Mode, Priority);
-        }
+        ////    switch (relativeSource.Tree)
+        ////    {
+        ////        case TreeType.Logical:
+        ////            controlLocator = ControlLocator.Track(
+        ////                (ILogical)target,
+        ////                relativeSource.AncestorLevel - 1,
+        ////                relativeSource.AncestorType);
+        ////            break;
+        ////        case TreeType.Visual:
+        ////            controlLocator = VisualLocator.Track(
+        ////                (Visual)target,
+        ////                relativeSource.AncestorLevel - 1,
+        ////                relativeSource.AncestorType);
+        ////            break;
+        ////        default:
+        ////            throw new InvalidOperationException("Invalid tree to traverse.");
+        ////    }
 
-        private protected ExpressionObserver CreateDataContextObserver(
-            AvaloniaObject target,
-            ExpressionNode node,
-            bool targetIsDataContext,
-            object? anchor)
-        {
-            _ = target ?? throw new ArgumentNullException(nameof(target));
+        ////    return new ExpressionObserver(
+        ////        controlLocator,
+        ////        node,
+        ////        null);
+        ////}
 
-            if (target is not IDataContextProvider)
-            {
-                if (anchor is IDataContextProvider && anchor is AvaloniaObject ao)
-                    target = ao;
-                else
-                    throw new InvalidOperationException("Cannot find a DataContext to bind to.");
-            }
+        ////private protected ExpressionObserver CreateSourceObserver(
+        ////    object source,
+        ////    ExpressionNode node)
+        ////{
+        ////    _ = source ?? throw new ArgumentNullException(nameof(source));
 
-            if (!targetIsDataContext)
-            {
-                var result = new ExpressionObserver(
-                    () => target.GetValue(StyledElement.DataContextProperty),
-                    node,
-                    new UpdateSignal(target, StyledElement.DataContextProperty),
-                    null);
+        ////    return new ExpressionObserver(source, node);
+        ////}
 
-                return result;
-            }
-            else
-            {
-                return new ExpressionObserver(
-                    GetParentDataContext(target),
-                    node,
-                    null);
-            }
-        }
+        ////private protected ExpressionObserver CreateTemplatedParentObserver(
+        ////    AvaloniaObject target,
+        ////    ExpressionNode node)
+        ////{
+        ////    _ = target ?? throw new ArgumentNullException(nameof(target));
 
-        private protected ExpressionObserver CreateElementObserver(
-            StyledElement target,
-            string elementName,
-            ExpressionNode node)
-        {
-            _ = target ?? throw new ArgumentNullException(nameof(target));
+        ////    var result = new ExpressionObserver(
+        ////        () => target.GetValue(StyledElement.TemplatedParentProperty),
+        ////        node,
+        ////        new UpdateSignal(target, StyledElement.TemplatedParentProperty),
+        ////        null);
 
-            if (NameScope is null || !NameScope.TryGetTarget(out var scope))
-                throw new InvalidOperationException("Name scope is null or was already collected");
-            var result = new ExpressionObserver(
-                NameScopeLocator.Track(scope, elementName),
-                node,
-                null);
-            return result;
-        }
-
-        private protected ExpressionObserver CreateFindAncestorObserver(
-            StyledElement target,
-            RelativeSource relativeSource,
-            ExpressionNode node)
-        {
-            _ = target ?? throw new ArgumentNullException(nameof(target));
-
-            IObservable<object?> controlLocator;
-
-            switch (relativeSource.Tree)
-            {
-                case TreeType.Logical:
-                    controlLocator = ControlLocator.Track(
-                        (ILogical)target,
-                        relativeSource.AncestorLevel - 1,
-                        relativeSource.AncestorType);
-                    break;
-                case TreeType.Visual:
-                    controlLocator = VisualLocator.Track(
-                        (Visual)target,
-                        relativeSource.AncestorLevel - 1,
-                        relativeSource.AncestorType);
-                    break;
-                default:
-                    throw new InvalidOperationException("Invalid tree to traverse.");
-            }
-
-            return new ExpressionObserver(
-                controlLocator,
-                node,
-                null);
-        }
-
-        private protected ExpressionObserver CreateSourceObserver(
-            object source,
-            ExpressionNode node)
-        {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
-
-            return new ExpressionObserver(source, node);
-        }
-
-        private protected ExpressionObserver CreateTemplatedParentObserver(
-            AvaloniaObject target,
-            ExpressionNode node)
-        {
-            _ = target ?? throw new ArgumentNullException(nameof(target));
-
-            var result = new ExpressionObserver(
-                () => target.GetValue(StyledElement.TemplatedParentProperty),
-                node,
-                new UpdateSignal(target, StyledElement.TemplatedParentProperty),
-                null);
-
-            return result;
-        }
+        ////    return result;
+        ////}
 
         private IObservable<object?> GetParentDataContext(AvaloniaObject target)
         {
