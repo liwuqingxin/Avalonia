@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
@@ -307,11 +308,11 @@ internal class UntypedBindingExpression : IObservable<object?>,
         if (value != BindingOperations.DoNothing && Converter is { } converter)
         {
             value = UpdateAndUnwrap(
-                converter.Convert(
-                    value,
-                    _targetTypeConverter?.TargetType ?? typeof(object),
+                Convert(
+                    converter,
                     ConverterParameter,
-                    CultureInfo.InvariantCulture),
+                    value,
+                    _targetTypeConverter?.TargetType ?? typeof(object)),
                 ref notification);
         }
 
@@ -341,7 +342,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
             else if (_targetTypeConverter is not null && value is not null)
             {
                 // Otherwise, if we have a target type converter, convert the value to the target type.
-                value = UpdateAndUnwrap(_targetTypeConverter.ConvertFrom(value), ref notification);
+                value = UpdateAndUnwrap(ConvertFrom(_targetTypeConverter, value), ref notification);
             }
         }
 
@@ -353,7 +354,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
 
             // If we have a target type converter, convert the fallback value to the target type.
             if (_targetTypeConverter is not null && value is not null)
-                value = UpdateAndUnwrap(_targetTypeConverter.ConvertFrom(value), ref notification);
+                value = UpdateAndUnwrap(ConvertFrom(_targetTypeConverter, value), ref notification);
         }
 
         // Store the value and publish the notification/value to the observer.
@@ -373,6 +374,37 @@ internal class UntypedBindingExpression : IObservable<object?>,
     {
         if (_nodes.Count > 0)
             _nodes[0].SetSource(source);
+    }
+
+    private static object? Convert(
+        IValueConverter converter,
+        object? converterParameter,
+        object? value,
+        Type targetType)
+    {
+        try
+        {
+            return converter.Convert(value, targetType, converterParameter, CultureInfo.InvariantCulture);
+        }
+        catch (Exception e)
+        {
+            return new BindingNotification(e, BindingErrorType.Error);
+        }
+    }
+
+    private static object? ConvertFrom(TypeConverter? converter, object value)
+    {
+        if (converter is null)
+            return value;
+
+        try
+        {
+            return converter.ConvertFrom(value);
+        }
+        catch (Exception e)
+        {
+            return new BindingNotification(e, BindingErrorType.Error);
+        }
     }
 
     private static object? UpdateAndUnwrap(object? value, ref BindingNotification? notification)

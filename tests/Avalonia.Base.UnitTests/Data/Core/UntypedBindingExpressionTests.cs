@@ -1,6 +1,7 @@
 using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Avalonia.Data;
 using Avalonia.Data.Core;
 using Avalonia.UnitTests;
 using Xunit;
@@ -33,30 +34,33 @@ namespace Avalonia.Base.UnitTests.Data.Core
             GC.KeepAlive(data);
         }
 
-        ////[Fact]
-        ////public async Task Getting_Invalid_Double_String_Should_Return_BindingError()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
-        ////    var target = new BindingExpression(UntypedBindingExpression.Create(data, o => o.StringValue), typeof(double));
-        ////    var result = await target.Take(1);
+        [Fact]
+        public async Task Getting_Invalid_Double_String_Should_Return_BindingError()
+        {
+            var data = new Class1 { StringValue = "foo" };
+            var target = UntypedBindingExpression.Create(data, o => o.StringValue, targetType: typeof(double));
+            var result = await target.Take(1);
 
-        ////    Assert.IsType<BindingNotification>(result);
+            Assert.IsType<BindingNotification>(result);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
-        ////[Fact]
-        ////public void Should_Convert_Set_String_To_Double()
-        ////{
-        ////    var data = new Class1 { StringValue = $"{5.6}" };
-        ////    var target = new BindingExpression(UntypedBindingExpression.Create(data, o => o.StringValue), typeof(double));
+        [Fact]
+        public void Should_Convert_Set_String_To_Double()
+        {
+            var data = new Class1 { StringValue = $"{5.6}" };
+            var target = UntypedBindingExpression.Create(data, o => o.StringValue, targetType: typeof(double));
 
-        ////    target.OnNext(6.7);
+            using (target.Subscribe(x => { }))
+            {
+                target.SetValue($"{6.7}");
+            }
 
-        ////    Assert.Equal($"{6.7}", data.StringValue);
+            Assert.Equal($"{6.7}", data.StringValue);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
         [Fact]
         public async Task Should_Convert_Double_To_String()
