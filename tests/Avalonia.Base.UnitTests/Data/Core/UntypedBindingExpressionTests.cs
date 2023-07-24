@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Avalonia.Data;
+using Avalonia.Data.Converters;
 using Avalonia.Data.Core;
 using Avalonia.UnitTests;
+using Moq;
 using Xunit;
 
 namespace Avalonia.Base.UnitTests.Data.Core
@@ -222,37 +226,39 @@ namespace Avalonia.Base.UnitTests.Data.Core
         ////    GC.KeepAlive(data);
         ////}
 
-        ////[Fact]
-        ////public void Should_Pass_ConverterParameter_To_Convert()
-        ////{
-        ////    var data = new Class1 { DoubleValue = 5.6 };
-        ////    var converter = new Mock<IValueConverter>();
+        [Fact]
+        public void Should_Pass_ConverterParameter_To_Convert()
+        {
+            var data = new Class1 { DoubleValue = 5.6 };
+            var converter = new Mock<IValueConverter>();
 
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.DoubleValue),
-        ////        typeof(string),
-        ////        converter.Object,
-        ////        converterParameter: "foo");
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.DoubleValue,                
+                converter: converter.Object,
+                converterParameter: "foo",
+                targetType: typeof(string));
 
-        ////    target.Subscribe(_ => { });
+            target.Subscribe(_ => { });
 
-        ////    converter.Verify(x => x.Convert(5.6, typeof(string), "foo", CultureInfo.CurrentCulture));
+            converter.Verify(x => x.Convert(5.6, typeof(string), "foo", CultureInfo.CurrentCulture));
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
         ////[Fact]
         ////public void Should_Pass_ConverterParameter_To_ConvertBack()
         ////{
         ////    var data = new Class1 { DoubleValue = 5.6 };
         ////    var converter = new Mock<IValueConverter>();
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.DoubleValue),
-        ////        typeof(string),
-        ////        converter.Object,
-        ////        converterParameter: "foo");
+        ////    var target = UntypedBindingExpression.Create(
+        ////        data, 
+        ////        o => o.DoubleValue,
+        ////        converter: converter.Object,
+        ////        converterParameter: "foo",
+        ////        targetType: typeof(string));
 
-        ////    target.OnNext("bar");
+        ////    target.SetValue("bar");
 
         ////    converter.Verify(x => x.ConvertBack("bar", typeof(double), "foo", CultureInfo.CurrentCulture));
 
@@ -264,13 +270,17 @@ namespace Avalonia.Base.UnitTests.Data.Core
         ////{
         ////    var data = new Class1 { DoubleValue = 5.6 };
         ////    var converter = new Mock<IValueConverter>();
-        ////    var target = new BindingExpression(UntypedBindingExpression.Create(data, o => o.DoubleValue, true), typeof(string));
+        ////    var target = UntypedBindingExpression.Create(
+        ////        data, 
+        ////        o => o.DoubleValue, 
+        ////        enableDataValidation: true,
+        ////        targetType: typeof(string));
         ////    var result = new List<object>();
 
         ////    target.Subscribe(x => result.Add(x));
-        ////    target.OnNext(1.2);
-        ////    target.OnNext($"{3.4}");
-        ////    target.OnNext("bar");
+        ////    target.SetValue(1.2);
+        ////    target.SetValue($"{3.4}");
+        ////    target.SetValue("bar");
 
         ////    Assert.Equal(
         ////        new[]
@@ -287,43 +297,27 @@ namespace Avalonia.Base.UnitTests.Data.Core
         ////    GC.KeepAlive(data);
         ////}
 
-        ////[Fact]
-        ////public void Second_Subscription_Should_Fire_Immediately()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
-        ////    var target = new BindingExpression(UntypedBindingExpression.Create(data, o => o.StringValue), typeof(string));
-        ////    object result = null;
+        [Fact]
+        public void Null_Value_Should_Use_TargetNullValue()
+        {
+            var data = new Class1 { StringValue = "foo" };
 
-        ////    target.Subscribe();
-        ////    target.Subscribe(x => result = x);
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.StringValue,
+                targetNullValue: "bar",
+                targetType: typeof(string));
 
-        ////    Assert.Equal("foo", result);
+            object result = null;
+            target.Subscribe(x => result = x);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            Assert.Equal("foo", result);
 
-        ////[Fact]
-        ////public void Null_Value_Should_Use_TargetNullValue()
-        ////{
-        ////    var data = new Class1 { StringValue = "foo" };
+            data.StringValue = null;
+            Assert.Equal("bar", result);
 
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.StringValue),
-        ////        typeof(string),
-        ////        AvaloniaProperty.UnsetValue,
-        ////        "bar",
-        ////        DefaultValueConverter.Instance);
-
-        ////    object result = null;
-        ////    target.Subscribe(x => result = x);
-
-        ////    Assert.Equal("foo", result);
-
-        ////    data.StringValue = null;
-        ////    Assert.Equal("bar", result);
-
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
         private class Class1 : NotifyingBase
         {

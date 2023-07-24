@@ -168,6 +168,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
     /// <param name="converter">The converter to use.</param>
     /// <param name="converterParameter">The converter parameter.</param>
     /// <param name="fallbackValue">The fallback value.</param>
+    /// <param name="targetNullValue">The null target value.</param>
     /// <param name="targetType">The target type to convert to.</param>
     /// <param name="enableDataValidation">Whether data validation should be enabled for the binding.</param>
     [RequiresUnreferencedCode(TrimmingMessages.ExpressionNodeRequiresUnreferencedCodeMessage)]
@@ -177,6 +178,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
         IValueConverter? converter = null,
         object? converterParameter = null,
         Optional<object?> fallbackValue = default,
+        object? targetNullValue = null,
         Type? targetType = null,
         bool enableDataValidation = false)
             where TIn : class?
@@ -192,6 +194,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
             converter: converter,
             converterParameter: converterParameter,
             enableDataValidation: enableDataValidation,
+            targetNullValue: targetNullValue,
             targetTypeConverter: targetTypeConverter);
     }
 
@@ -384,7 +387,7 @@ internal class UntypedBindingExpression : IObservable<object?>,
     {
         try
         {
-            return converter.Convert(value, targetType, converterParameter, CultureInfo.InvariantCulture);
+            return converter.Convert(value, targetType, converterParameter, CultureInfo.CurrentCulture);
         }
         catch (Exception e)
         {
