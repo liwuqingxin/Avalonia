@@ -16,23 +16,24 @@ namespace Avalonia.Data.Core.ExpressionNodes.Reflection;
 internal class ReflectionIndexerNode : CollectionNodeBase
 {
     private static readonly BindingFlags InstanceFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
-    private readonly IList _arguments;
     private MethodInfo? _getter;
     private MethodInfo? _setter;
     private object?[]? _indexes;
 
     public ReflectionIndexerNode(IList arguments)
     {
-        _arguments = arguments;
+        Arguments = arguments;
     }
+
+    public IList Arguments { get; }
 
     public override void BuildString(StringBuilder builder)
     {
         builder.Append('[');
-        for (var i = 0; i < _arguments.Count; i++)
+        for (var i = 0; i < Arguments.Count; i++)
         {
-            builder.Append(_arguments[i]);
-            if (i != _arguments.Count - 1)
+            builder.Append(Arguments[i]);
+            if (i != Arguments.Count - 1)
                 builder.Append(',');
         }
         builder.Append(']');
@@ -55,7 +56,7 @@ internal class ReflectionIndexerNode : CollectionNodeBase
         _indexes = null;
         
         if (GetIndexer(source.GetType(), out _getter, out _setter))
-            _indexes = ConvertIndexes(_getter.GetParameters(), _arguments);
+            _indexes = ConvertIndexes(_getter.GetParameters(), Arguments);
 
         base.OnSourceChanged(source);
     }
@@ -70,7 +71,7 @@ internal class ReflectionIndexerNode : CollectionNodeBase
 
     protected override int? TryGetFirstArgumentAsInt()
     {
-        if (TypeUtilities.TryConvert(typeof(int), _arguments[0], CultureInfo.InvariantCulture, out var value))
+        if (TypeUtilities.TryConvert(typeof(int), Arguments[0], CultureInfo.InvariantCulture, out var value))
             return (int?)value;
         return null;
     }

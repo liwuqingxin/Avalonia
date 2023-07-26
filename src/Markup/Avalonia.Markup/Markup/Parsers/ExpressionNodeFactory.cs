@@ -72,7 +72,7 @@ namespace Avalonia.Markup.Parsers
                     result.Add(node);
             }
 
-            for (var i = 0; i < negated % 2; ++i)
+            for (var i = 0; i < negated; ++i)
                 result.Add(new LogicalNotNode());
         }
 
