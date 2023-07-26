@@ -112,13 +112,13 @@ internal class UntypedBindingExpression : IObservable<object?>,
         }
     }
 
-    private Type TargetType => _targetTypeConverter?.TargetType ?? typeof(object);
-    private IValueConverter? Converter => _uncommon?._converter;
-    private object? ConverterParameter => _uncommon?._converterParameter;
-    private object? FallbackValue => _uncommon is not null ? _uncommon._fallbackValue : AvaloniaProperty.UnsetValue;
-    private object? TargetNullValue => _uncommon?._targetNullValue ?? AvaloniaProperty.UnsetValue;
-    private ExpressionNode LeafNode => _nodes[_nodes.Count - 1];
-    private string? StringFormat => _uncommon?._stringFormat;
+    public Type TargetType => _targetTypeConverter?.TargetType ?? typeof(object);
+    public IValueConverter? Converter => _uncommon?._converter;
+    public object? ConverterParameter => _uncommon?._converterParameter;
+    public object? FallbackValue => _uncommon is not null ? _uncommon._fallbackValue : AvaloniaProperty.UnsetValue;
+    public object? TargetNullValue => _uncommon?._targetNullValue ?? AvaloniaProperty.UnsetValue;
+    public ExpressionNode LeafNode => _nodes[_nodes.Count - 1];
+    public string? StringFormat => _uncommon?._stringFormat;
 
     /// <summary>
     /// Writes the specified value to the binding source if possible.
