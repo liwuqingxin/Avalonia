@@ -8,7 +8,7 @@ using System.Text;
 namespace Avalonia.Data.Core.ExpressionNodes.Reflection;
 
 [RequiresUnreferencedCode(TrimmingMessages.ExpressionNodeRequiresUnreferencedCodeMessage)]
-internal sealed class ExpressionTreeIndexerNode : CollectionNodeBase
+internal sealed class ExpressionTreeIndexerNode : CollectionNodeBase, ISettableNode
 {
     private readonly ParameterExpression _parameter;
     private readonly IndexExpression _expression;
@@ -26,6 +26,8 @@ internal sealed class ExpressionTreeIndexerNode : CollectionNodeBase
         _firstArgumentDelegate = Expression.Lambda(_expression.Arguments[0], _parameter).Compile();
     }
 
+    public Type? ValueType => _expression.Type;
+
     public override void BuildString(StringBuilder builder)
     {
         builder.Append('[');
@@ -41,7 +43,7 @@ internal sealed class ExpressionTreeIndexerNode : CollectionNodeBase
         builder.Append(']');
     }
 
-    public override bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
+    public bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
     {
         if (Source is null)
             return false;

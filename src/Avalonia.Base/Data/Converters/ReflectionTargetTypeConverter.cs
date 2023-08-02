@@ -21,4 +21,9 @@ internal class ReflectionTargetTypeConverter : TargetTypeConverter
     {
         return DefaultValueConverter.Instance.Convert(value, TargetType, null, CultureInfo.InvariantCulture);
     }
+
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
+    {
+        return DefaultValueConverter.Instance.Convert(value, destinationType, null, CultureInfo.InvariantCulture);
+    }
 }

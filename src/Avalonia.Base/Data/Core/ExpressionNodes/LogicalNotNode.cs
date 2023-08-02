@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using static Avalonia.Rendering.Composition.Animations.PropertySetSnapshot;
 
 namespace Avalonia.Data.Core.ExpressionNodes;
 
-internal class LogicalNotNode : ExpressionNode
+internal class LogicalNotNode : ExpressionNode, ISettableNode
 {
     public override void BuildString(StringBuilder builder)
     {
         builder.Append("!");
     }
 
-    public override bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
-    {
-        if (Index > 0 && TryConvert(value, out var boolValue))
-            return nodes[Index - 1].WriteValueToSource(!boolValue, nodes);
+    public Type ValueType => typeof(bool);
 
+    public bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
+    {
+        if (Index > 0 && nodes[Index - 1] is ISettableNode previousNode && TryConvert(value, out var boolValue))
+            return previousNode.WriteValueToSource(!boolValue, nodes);
         return false;
     }
 

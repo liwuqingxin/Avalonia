@@ -195,23 +195,23 @@ namespace Avalonia.Base.UnitTests.Data.Core
             GC.KeepAlive(data);
         }
 
-        ////[Fact]
-        ////public void Setting_Invalid_Double_String_Should_Use_FallbackValue()
-        ////{
-        ////    var data = new Class1 { DoubleValue = 5.6 };
-        ////    var target = new BindingExpression(
-        ////        UntypedBindingExpression.Create(data, o => o.DoubleValue),
-        ////        typeof(string),
-        ////        "9.8",
-        ////        AvaloniaProperty.UnsetValue,
-        ////        DefaultValueConverter.Instance);
+        [Fact]
+        public void Setting_Invalid_Double_String_Should_Use_FallbackValue()
+        {
+            var data = new Class1 { DoubleValue = 5.6 };
+            var target = UntypedBindingExpression.Create(
+                data, 
+                o => o.DoubleValue,
+                fallbackValue: "9.8",
+                targetType: typeof(string));
 
-        ////    target.OnNext("foo");
+            using (target.Subscribe(_ => { }))
+                target.SetValue("foo");
 
-        ////    Assert.Equal(9.8, data.DoubleValue);
+            Assert.Equal(9.8, data.DoubleValue);
 
-        ////    GC.KeepAlive(data);
-        ////}
+            GC.KeepAlive(data);
+        }
 
         ////[Fact]
         ////public void Should_Coerce_Setting_UnsetValue_Double_To_Default_Value()

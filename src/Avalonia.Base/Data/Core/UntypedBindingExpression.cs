@@ -129,11 +129,11 @@ internal class UntypedBindingExpression : IObservable<object?>,
     /// </returns>
     public bool SetValue(object? value)
     {
-        if (_nodes.Count == 0)
+        if (_nodes.Count == 0 || LeafNode is not ISettableNode setter || setter.ValueType is not { } type)
             return false;
 
         if (Converter is not null)
-            value = Converter.ConvertBack(value, TargetType, ConverterParameter, CultureInfo.CurrentCulture);
+            value = Converter.ConvertBack(value, type, ConverterParameter, CultureInfo.CurrentCulture);
 
         if (value == BindingOperations.DoNothing)
             return true;
@@ -148,9 +148,25 @@ internal class UntypedBindingExpression : IObservable<object?>,
         if (value is null && _value == NullReference)
             return true;
 
+        // Use the target type converter to convert the value to the target type if necessary.
+        if (_targetTypeConverter is not null)
+        {
+            try 
+            { 
+                value = _targetTypeConverter.ConvertTo(value, type);
+            }
+            catch 
+            {
+                if (FallbackValue != AvaloniaProperty.UnsetValue)
+                    value = FallbackValue;
+                else
+                    return false;
+            }
+        }
+
         try
         {
-            return LeafNode.WriteValueToSource(BindingNotification.ExtractValue(value), _nodes);
+            return setter.WriteValueToSource(BindingNotification.ExtractValue(value), _nodes);
         }
         catch
         {

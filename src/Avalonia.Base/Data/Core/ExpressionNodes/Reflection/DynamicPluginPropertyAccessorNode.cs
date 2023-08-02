@@ -12,7 +12,7 @@ namespace Avalonia.Data.Core.ExpressionNodes.Reflection;
 /// <see cref="BindingPlugins.PropertyAccessors"/>.
 /// </summary>
 [RequiresUnreferencedCode(TrimmingMessages.ExpressionNodeRequiresUnreferencedCodeMessage)]
-internal class DynamicPluginPropertyAccessorNode : ExpressionNode, IPropertyAccessorNode
+internal class DynamicPluginPropertyAccessorNode : ExpressionNode, IPropertyAccessorNode, ISettableNode
 {
     private readonly Action<object?> _onValueChanged;
     private IPropertyAccessor? _accessor;
@@ -24,8 +24,9 @@ internal class DynamicPluginPropertyAccessorNode : ExpressionNode, IPropertyAcce
         PropertyName = propertyName;
     }
 
-    public string PropertyName { get; }
     public IPropertyAccessor? Accessor => _accessor;
+    public string PropertyName { get; }
+    public Type? ValueType => _accessor?.PropertyType;
 
     override public void BuildString(StringBuilder builder)
     {
@@ -36,7 +37,7 @@ internal class DynamicPluginPropertyAccessorNode : ExpressionNode, IPropertyAcce
 
     public void EnableDataValidation() => _enableDataValidation = true;
 
-    public override bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
+    public bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
     {
         return _accessor?.SetValue(value, BindingPriority.LocalValue) ?? false;
     }

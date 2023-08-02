@@ -118,16 +118,6 @@ internal abstract class ExpressionNode
     }
 
     /// <summary>
-    /// Tries to write the specified value to the source.
-    /// </summary>
-    /// <param name="value">The value to write.</param>
-    /// <param name="nodes">The expression nodes in the binding.</param>
-    /// <returns>True if the value was written sucessfully; otherwise false.</returns>
-    public virtual bool WriteValueToSource(
-        object? value,
-        IReadOnlyList<ExpressionNode> nodes) => false;
-
-    /// <summary>
     /// Sets the current value to <see cref="AvaloniaProperty.UnsetValue"/>.
     /// </summary>
     protected void ClearValue() => SetValue(AvaloniaProperty.UnsetValue);

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Avalonia.Data.Core.ExpressionNodes;
 
-internal class AvaloniaPropertyAccessorNode : ExpressionNode
+internal class AvaloniaPropertyAccessorNode : ExpressionNode, ISettableNode
 {
     private readonly EventHandler<AvaloniaPropertyChangedEventArgs> _onValueChanged;
 
@@ -15,6 +15,7 @@ internal class AvaloniaPropertyAccessorNode : ExpressionNode
     }
 
     public AvaloniaProperty Property { get; }
+    public Type? ValueType => Property.PropertyType;
 
     override public void BuildString(StringBuilder builder)
     {
@@ -23,7 +24,7 @@ internal class AvaloniaPropertyAccessorNode : ExpressionNode
         builder.Append(Property.Name);
     }
 
-    public override bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
+    public bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
     {
         if (Source is AvaloniaObject o)
         {

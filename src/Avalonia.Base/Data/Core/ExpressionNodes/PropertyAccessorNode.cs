@@ -9,7 +9,7 @@ namespace Avalonia.Data.Core.ExpressionNodes;
 /// A node in the binding path of an <see cref="UntypedBindingExpression"/> that reads a property
 /// via a predefined <see cref="IPropertyAccessorPlugin"/>.
 /// </summary>
-internal class PropertyAccessorNode : ExpressionNode, IPropertyAccessorNode
+internal class PropertyAccessorNode : ExpressionNode, IPropertyAccessorNode, ISettableNode
 {
     private readonly Action<object?> _onValueChanged;
     private readonly IPropertyAccessorPlugin _plugin;
@@ -22,8 +22,9 @@ internal class PropertyAccessorNode : ExpressionNode, IPropertyAccessorNode
         PropertyName = propertyName;
     }
 
-    public string PropertyName { get; }
     public IPropertyAccessor? Accessor => _accessor;
+    public string PropertyName { get; }
+    public Type? ValueType => _accessor?.PropertyType;
 
     public override void BuildString(StringBuilder builder)
     {
@@ -34,7 +35,7 @@ internal class PropertyAccessorNode : ExpressionNode, IPropertyAccessorNode
 
     public void EnableDataValidation() { }
 
-    public override bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
+    public bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
     {
         if (_accessor?.PropertyType is { } targetType)
         {

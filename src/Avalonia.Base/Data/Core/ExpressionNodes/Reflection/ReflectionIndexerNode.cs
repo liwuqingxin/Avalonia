@@ -13,7 +13,7 @@ using Avalonia.Utilities;
 namespace Avalonia.Data.Core.ExpressionNodes.Reflection;
 
 [RequiresUnreferencedCode(TrimmingMessages.ReflectionBindingRequiresUnreferencedCodeMessage)]
-internal class ReflectionIndexerNode : CollectionNodeBase
+internal class ReflectionIndexerNode : CollectionNodeBase, ISettableNode
 {
     private static readonly BindingFlags InstanceFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly;
     private MethodInfo? _getter;
@@ -26,6 +26,7 @@ internal class ReflectionIndexerNode : CollectionNodeBase
     }
 
     public IList Arguments { get; }
+    public Type? ValueType => _getter?.ReturnType;
 
     public override void BuildString(StringBuilder builder)
     {
@@ -39,7 +40,7 @@ internal class ReflectionIndexerNode : CollectionNodeBase
         builder.Append(']');
     }
 
-    public override bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
+    public bool WriteValueToSource(object? value, IReadOnlyList<ExpressionNode> nodes)
     {
         if (Source is null || _setter is null)
             return false;
