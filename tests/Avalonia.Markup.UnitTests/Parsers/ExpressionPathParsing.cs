@@ -150,7 +150,7 @@ namespace Avalonia.Markup.UnitTests.Parsers
             var result = Parse("Foo^");
 
             Assert.Equal(2, result.Count);
-            Assert.IsType<PluginStreamNode>(result[1]);
+            Assert.IsType<DynamicPluginStreamNode>(result[1]);
         }
 
         private static void AssertIsProperty(ExpressionNode node, string name)

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Avalonia.Data;
 using Avalonia.Data.Core.Plugins;
@@ -7,7 +6,6 @@ using Avalonia.Reactive;
 
 namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
 {
-    [RequiresUnreferencedCode(TrimmingMessages.StreamPluginRequiresUnreferencedCodeMessage)]
     internal class TaskStreamPlugin<T> : IStreamPlugin
     {
         public bool Match(WeakReference<object?> reference)

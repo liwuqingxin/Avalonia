@@ -94,7 +94,7 @@ internal class UntypedBindingExpressionVisitor<TIn> : ExpressionVisitor
                  method.DeclaringType == typeof(StreamBindingExtensions))
         {
             var instance = node.Method.IsStatic ? node.Arguments[0] : node.Object;
-            Add(instance, node, new PluginStreamNode());
+            Add(instance, node, new DynamicPluginStreamNode());
             return node;
         }
         else if (method == CreateDelegateMethod)

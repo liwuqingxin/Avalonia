@@ -59,7 +59,7 @@ namespace Avalonia.Markup.Parsers
                         isRooted = true;
                         break;
                     case BindingExpressionGrammar.StreamNode:
-                        node = new PluginStreamNode();
+                        node = new DynamicPluginStreamNode();
                         break;
                     case BindingExpressionGrammar.TypeCastNode typeCast:
                         node = new ReflectionTypeCastNode(LookupType(typeResolver, typeCast.Namespace, typeCast.TypeName));

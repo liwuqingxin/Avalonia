@@ -46,9 +46,8 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
                             methodAsCommand.DependsOnProperties);
                         break;
                     case MethodAsDelegateElement methodAsDelegate:
-                        throw new NotImplementedException("Need to implement to not require reflection.");
-                        ////node = new PropertyAccessorNode(methodAsDelegate.Method.Name, new ReflectionMethodAccessorPlugin(methodAsDelegate.Method, methodAsDelegate.DelegateType));
-                        ////break;
+                        node = new PropertyAccessorNode(methodAsDelegate.Method.Name, new MethodAccessorPlugin(methodAsDelegate.Method, methodAsDelegate.DelegateType));
+                        break;
                     case ArrayElementPathElement arr:
                         node = new ArrayIndexerNode(arr.Indices);
                         break;
@@ -68,9 +67,9 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
                         node = new NamedElementNode(name.NameScope, name.Name);
                         isRooted = true;
                         break;
-                    ////case IStronglyTypedStreamElement stream:
-                    ////    node = new StreamNode(stream.CreatePlugin());
-                    ////    break;
+                    case IStronglyTypedStreamElement stream:
+                        node = new StreamNode(stream.CreatePlugin());
+                        break;
                     case ITypeCastElement typeCast:
                         node = new FuncTransformNode(typeCast.Cast);
                         break;
@@ -256,14 +255,14 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
     {
         public static readonly TaskStreamPathElement<T> Instance = new TaskStreamPathElement<T>();
 
-        public IStreamPlugin CreatePlugin() => throw new NotImplementedException("Need to implement to not require reflection.");
+        public IStreamPlugin CreatePlugin() => new TaskStreamPlugin<T>();
     }
 
     internal class ObservableStreamPathElement<T> : IStronglyTypedStreamElement
     {
         public static readonly ObservableStreamPathElement<T> Instance = new ObservableStreamPathElement<T>();
 
-        public IStreamPlugin CreatePlugin() => throw new NotImplementedException(); //new ObservableStreamPlugin<T>();
+        public IStreamPlugin CreatePlugin() => new ObservableStreamPlugin<T>();
     }
 
     internal class SelfPathElement : ICompiledBindingPathElement, IControlSourceBindingPathElement
