@@ -75,6 +75,35 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions
             return new InstancedBinding(expression, Mode, Priority);
         }
 
+        /// <summary>
+        /// Hack for TreeDataTemplate to create a binding expression for an item.
+        /// </summary>
+        /// <param name="source">The item.</param>
+        /// <remarks>
+        /// Ideally we'd do this in a more generic way but didn't have time to refactor
+        /// ITreeDataTemplate in time for 11.0. We should revisit this in 12.0.
+        /// </remarks>
+        internal UntypedBindingExpression CreateObservableForTreeDataTemplate(object source)
+        {
+            if (Source is not null)
+                throw new NotSupportedException("Source bindings are not supported in this context.");
+
+            var nodes = new List<ExpressionNode>();
+
+            Path.BuildExpression(nodes, out var isRooted);
+
+            if (isRooted)
+                throw new NotSupportedException("Rooted binding paths are not supported in this context.");
+
+            return new UntypedBindingExpression(
+                source,
+                nodes,
+                FallbackValue,
+                converter: Converter,
+                converterParameter: ConverterParameter,
+                targetNullValue: TargetNullValue);
+        }
+
         [ConstructorArgument("path")]
         public CompiledBindingPath Path { get; set; }
 

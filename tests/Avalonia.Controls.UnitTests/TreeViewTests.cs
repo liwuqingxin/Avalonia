@@ -62,7 +62,7 @@ namespace Avalonia.Controls.UnitTests
             using var app = Start();
             var itemTemplate = new TreeDataTemplate
             {
-                Content = (IServiceProvider? _) => new Canvas(),
+                Content = (IServiceProvider? _) => new TemplateResult<Control>(new Canvas(), new NameScope()),
                 ItemsSource = new Binding("Children"),
             };
             var target = CreateTarget(itemTemplate: itemTemplate);
