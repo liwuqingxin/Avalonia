@@ -73,6 +73,10 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
                     case ITypeCastElement typeCast:
                         node = new FuncTransformNode(typeCast.Cast);
                         break;
+                    case TemplatedParentPathElement:
+                        node = new TemplatedParentNode();
+                        isRooted = true;
+                        break;
                     default:
                         throw new InvalidOperationException($"Unknown binding path element type {element.GetType().FullName}");
                 }
@@ -146,6 +150,7 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
             _elements.Add(new AncestorPathElement(ancestorType, level));
             return this;
         }
+
         public CompiledBindingPathBuilder VisualAncestor(Type ancestorType, int level)
         {
             _elements.Add(new VisualAncestorPathElement(ancestorType, level));
@@ -167,6 +172,12 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
         public CompiledBindingPathBuilder TypeCast<T>()
         {
             _elements.Add(new TypeCastPathElement<T>());
+            return this;
+        }
+
+        public CompiledBindingPathBuilder TemplatedParent()
+        {
+            _elements.Add(new TemplatedParentPathElement());
             return this;
         }
 
@@ -313,6 +324,12 @@ namespace Avalonia.Markup.Xaml.MarkupExtensions.CompiledBindings
 
         public override string ToString()
             => $"#{Name}";
+    }
+
+    internal class TemplatedParentPathElement : ICompiledBindingPathElement, IControlSourceBindingPathElement
+    {
+        public override string ToString()
+            => $"$templatedParent";
     }
 
     internal class ArrayElementPathElement : ICompiledBindingPathElement
