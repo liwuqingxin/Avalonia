@@ -96,16 +96,18 @@ public unsafe class VulkanImage : IDisposable
             Api.GetImageMemoryRequirements(_device, InternalHandle.Value,
                 out var memoryRequirements);
 
-
-            var fdExport = new ExportMemoryAllocateInfo
-            {
-                HandleTypes = handleType, SType = StructureType.ExportMemoryAllocateInfo
-            };
             var dedicatedAllocation = new MemoryDedicatedAllocateInfoKHR
             {
                 SType = StructureType.MemoryDedicatedAllocateInfoKhr,
                 Image = image
             };
+            
+            var fdExport = new ExportMemoryAllocateInfo
+            {
+                HandleTypes = handleType, SType = StructureType.ExportMemoryAllocateInfo,
+                PNext = &dedicatedAllocation
+            };
+
             ImportMemoryWin32HandleInfoKHR handleImport = default;
             if (exportable && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
